@@ -1,14 +1,21 @@
 package com.bazaarvoice.maven.plugin.process;
 
-import com.google.common.collect.Lists;
-import org.apache.maven.plugin.logging.Log;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.maven.plugin.logging.Log;
+import org.zeroturnaround.process.OrProcess;
+import org.zeroturnaround.process.ProcessUtil;
+import org.zeroturnaround.process.Processes;
+import org.zeroturnaround.process.SystemProcess;
+import org.zeroturnaround.process.WindowsProcess;
+
+import com.google.common.collect.Lists;
 
 public class ExecProcess {
     private Process process = null;
@@ -76,7 +83,19 @@ public class ExecProcess {
         for (StdoutRedirector redirector : redirectors) {
             redirector.stopIt();
         }
-        process.destroy();
+        SystemProcess sprocess = Processes.newPidProcess(process);
+        if (sprocess instanceof WindowsProcess)
+        {
+        	WindowsProcess p = ((WindowsProcess)sprocess);
+        	p.setGracefulDestroyEnabled(true);
+        	p.setIncludeChildren(true);
+        }
+        try {
+        	ProcessUtil.destroyGracefullyOrForcefullyAndWait(sprocess, 10, TimeUnit.SECONDS, 3, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			process.destroy();
+			throw new RuntimeException("couldn't kill process '" + process, e);
+		}
     }
 
     public void waitFor() {

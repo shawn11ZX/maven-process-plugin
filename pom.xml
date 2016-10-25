@@ -9,7 +9,7 @@
     </parent>
 
     <groupId>com.bazaarvoice.maven.plugins</groupId>
-    <artifactId>process-exec-maven-plugin</artifactId>
+    <artifactId>process-exec-maven-plugin-wd</artifactId>
     <packaging>maven-plugin</packaging>
     <version>0.9-SNAPSHOT</version>
 
@@ -22,6 +22,13 @@
       <tag>HEAD</tag>
   </scm>
 
+  <distributionManagement>
+	  <snapshotRepository>
+		<id>snapshots</id>
+		<url>http://192.168.0.2:8081/nexus/content/repositories/snapshots</url>
+	  </snapshotRepository>
+	</distributionManagement>
+	
     <properties>
         <guava.version>15.0</guava.version>
         <mavenVersion>3.0</mavenVersion>
@@ -85,6 +92,11 @@
             <artifactId>commons-io</artifactId>
             <version>2.1</version>
         </dependency>
+        <dependency>
+		    <groupId>org.zeroturnaround</groupId>
+		    <artifactId>zt-process-killer</artifactId>
+		    <version>1.4</version>
+		</dependency>
     </dependencies>
     <build>
         <plugins>
